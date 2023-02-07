@@ -8,7 +8,7 @@ ENV LANG C.UTF-8
 
 # Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+    apt-get install -y \
         ca-certificates \
         curl \
         dirmngr \
@@ -33,7 +33,7 @@ RUN apt-get update && \
         xz-utils \
     && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb \
     && echo 'ea8277df4297afc507c61122f3c349af142f31e5 wkhtmltox.deb' | sha1sum -c - \
-    && apt-get install -y --no-install-recommends ./wkhtmltox.deb \
+    && apt-get install -y ./wkhtmltox.deb \
     && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
 
 # install latest postgresql-client
@@ -57,20 +57,66 @@ RUN npm install -g rtlcss
 ENV ODOO_VERSION 16.0
 ARG ODOO_RELEASE=20230109
 ARG ODOO_SHA=884bf72c7318835b9ac56be2594032cbba7b8c7b
-RUN curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
-    && echo "${ODOO_SHA} odoo.deb" | sha1sum -c - \
-    && apt-get update \
-    && apt-get -y install --no-install-recommends ./odoo.deb \
-    && rm -rf /var/lib/apt/lists/* odoo.deb
+RUN apt-get update \
+    && apt-get install -y \
+        adduser \
+        fonts-dejavu-core \
+        fonts-freefont-ttf \
+        fonts-freefont-otf \
+        fonts-noto-core \
+        fonts-inconsolata \
+        fonts-font-awesome \
+        fonts-roboto-unhinted \
+        gsfonts \
+        libjs-underscore \
+        lsb-base \
+        postgresql-client \
+        python3-babel \
+        python3-chardet \
+        python3-dateutil \
+        python3-decorator \
+        python3-docutils \
+        python3-freezegun \
+        python3-pil \
+        python3-jinja2 \
+        python3-libsass \
+        python3-lxml \
+        python3-num2words \
+        python3-ofxparse \
+        python3-passlib \
+        python3-polib \
+        python3-psutil \
+        python3-psycopg2 \
+        python3-pydot \
+        python3-openssl \
+        python3-pypdf2 \
+        python3-qrcode \
+        python3-renderpm \
+        python3-reportlab \
+        python3-requests \
+        python3-stdnum \
+        python3-tz \
+        python3-vobject \
+        python3-werkzeug \
+        python3-xlsxwriter \
+        python3-xlrd \
+        python3-zeep \
+        python3-ldap \
+    && rm -rf \
+        /var/lib/apt/lists/* 
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
 COPY ./odoo.conf /etc/odoo/
 
 # Set permissions and Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
-RUN chown odoo /etc/odoo/odoo.conf \
+RUN adduser --system \
+        --home /var/lib/odoo \
+        --quiet --group odoo \
+#    && chown odoo:odoo /var/lib/odoo \
+#    && chown odoo /etc/odoo/odoo.conf \
     && mkdir -p /mnt/extra-addons \
-    && chown -R odoo /mnt/extra-addons
+#    && chown -R odoo /mnt/extra-addons
 VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 
 # Expose Odoo services
@@ -82,7 +128,7 @@ ENV ODOO_RC /etc/odoo/odoo.conf
 COPY wait-for-psql.py /usr/local/bin/wait-for-psql.py
 
 # Set default user when running the container
-USER odoo
+# USER odoo
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["odoo"]
