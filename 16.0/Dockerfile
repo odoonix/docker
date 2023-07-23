@@ -102,6 +102,9 @@ RUN apt-get update \
         python3-zeep \
         python3-ldap \
         python3-gevent \
+    && pip install \
+        openupgradelib \
+        jdatetime \
     && rm -rf \
         /var/lib/apt/lists/* 
 
