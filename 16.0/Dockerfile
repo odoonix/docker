@@ -105,6 +105,7 @@ RUN apt-get update \
     && pip install \
         openupgradelib \
         jdatetime \
+        persiantools \
     && rm -rf \
         /var/lib/apt/lists/* 
 
