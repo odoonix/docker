@@ -1,11 +1,15 @@
-FROM debian:bullseye-slim
+FROM ubuntu:22.04
 
 SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
 
-# Generate locale C.UTF-8 for postgres and general locale data
-ENV LANG C.UTF-8
 
 # Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
+ENV LANG C.UTF-8
+ENV ODOO_VERSION 16.0
+ENV ODOO_RC /etc/odoo/odoo.conf
+
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
         ca-certificates \
@@ -16,6 +20,19 @@ RUN apt-get update && \
         libssl-dev \
         node-less \
         npm \
+        xz-utils \
+        adduser \
+        fonts-dejavu-core \
+        fonts-freefont-ttf \
+        fonts-freefont-otf \
+        fonts-noto-core \
+        fonts-inconsolata \
+        fonts-font-awesome \
+        fonts-roboto-unhinted \
+        gsfonts \
+        libjs-underscore \
+        lsb-base \
+        wkhtmltopdf \
         python3-num2words \
         python3-pdfminer \
         python3-pip \
@@ -29,46 +46,6 @@ RUN apt-get update && \
         python3-watchdog \
         python3-xlrd \
         python3-xlwt \
-        xz-utils \
-    && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb \
-    && echo 'ea8277df4297afc507c61122f3c349af142f31e5 wkhtmltox.deb' | sha1sum -c - \
-    && apt-get install --no-install-recommends -y ./wkhtmltox.deb \
-    && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
-
-# install latest postgresql-client
-RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' > /etc/apt/sources.list.d/pgdg.list \
-    && GNUPGHOME="$(mktemp -d)" \
-    && export GNUPGHOME \
-    && repokey='B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8' \
-    && gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "${repokey}" \
-    && gpg --batch --armor --export "${repokey}" > /etc/apt/trusted.gpg.d/pgdg.gpg.asc \
-    && gpgconf --kill all \
-    && rm -rf "$GNUPGHOME" \
-    && apt-get update  \
-    && apt-get install --no-install-recommends -y postgresql-client \
-    && rm -f /etc/apt/sources.list.d/pgdg.list \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install rtlcss (on Debian buster)
-RUN npm install -g rtlcss
-
-# Install Odoo
-ENV ODOO_VERSION 16.0
-ARG ODOO_RELEASE=20230109
-ARG ODOO_SHA=884bf72c7318835b9ac56be2594032cbba7b8c7b
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
-        adduser \
-        fonts-dejavu-core \
-        fonts-freefont-ttf \
-        fonts-freefont-otf \
-        fonts-noto-core \
-        fonts-inconsolata \
-        fonts-font-awesome \
-        fonts-roboto-unhinted \
-        gsfonts \
-        libjs-underscore \
-        lsb-base \
         postgresql-client \
         python3-babel \
         python3-chardet \
@@ -106,10 +83,43 @@ RUN apt-get update \
         openupgradelib \
         jdatetime \
         persiantools \
-    && rm -rf \
-        /var/lib/apt/lists/* 
+    && pip cache purge \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/logs/*
 
-# Copy entrypoint script and Odoo configuration file
+# install latest wkhtmltopdf
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y wkhtmltopdf \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/logs/*
+# RUN curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb \
+#     && echo '800eb1c699d07238fee77bf9df1556964f00ffcf wkhtmltox.deb' | sha1sum -c - \
+#     && apt-get install --no-install-recommends -y xfonts-base ./wkhtmltox.deb \
+#     && rm -rf wkhtmltox.deb \
+#     && rm -rf /var/lib/apt/lists/* \
+#     && rm -rf /var/logs/*
+
+# install latest postgresql-client
+# RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' > /etc/apt/sources.list.d/pgdg.list \
+#     && GNUPGHOME="$(mktemp -d)" \
+#     && export GNUPGHOME \
+#     && repokey='B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8' \
+#     && gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "${repokey}" \
+#     && gpg --batch --armor --export "${repokey}" > /etc/apt/trusted.gpg.d/pgdg.gpg.asc \
+#     && gpgconf --kill all \
+#     && rm -rf "$GNUPGHOME" \
+#     && apt-get update  \
+#     && apt-get install --no-install-recommends -y postgresql-client \
+#     && rm -f /etc/apt/sources.list.d/pgdg.list \
+#     && rm -rf /var/lib/apt/lists/* \
+#     && rm -rf /var/logs/*
+
+# Install rtlcss (on Debian buster)
+RUN npm install -g rtlcss \
+    &&  npm cache clean --force \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/*
+
 COPY ./entrypoint.sh /
 COPY ./odoo.conf /etc/odoo/
 
@@ -117,22 +127,18 @@ COPY ./odoo.conf /etc/odoo/
 RUN adduser --system \
         --home /var/lib/odoo \
         --quiet --group odoo \
-#    && chown odoo:odoo /var/lib/odoo \
-#    && chown odoo /etc/odoo/odoo.conf \
+    && chown odoo:odoo /var/lib/odoo \
+    && chown odoo /etc/odoo/odoo.conf \
     && mkdir -p /mnt/extra-addons \
-#    && chown -R odoo /mnt/extra-addons
+    && chown -R odoo /mnt/extra-addons
 VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 
 # Expose Odoo services
 EXPOSE 8069 8071 8072
 
-# Set the default config file
-ENV ODOO_RC /etc/odoo/odoo.conf
-
 COPY wait-for-psql.py /usr/local/bin/wait-for-psql.py
 
 # Set default user when running the container
 # USER odoo
-
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["odoo"]
