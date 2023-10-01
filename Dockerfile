@@ -105,7 +105,8 @@ RUN apt-get update \
     && pip install \
         openupgradelib \
         jdatetime \
-        pytz \
+        persiantools \
+        pytz==2023.3 \
     && rm -rf \
         /var/lib/apt/lists/* 
 

@@ -5,7 +5,7 @@ docker run --rm \
     --volume ${fileWorkspaceFolder}/../odoo:/var/lib/odoo \
     --volume ${fileWorkspaceFolder}/../:/extra-add \
     -p 8069:8069 \
-    c5f88b09ad44 \
+    9a75d868d261 \
     --db_host db \
     --db_password odoo \
     --db_user odoo \
