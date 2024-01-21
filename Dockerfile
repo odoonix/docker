@@ -33,7 +33,10 @@ RUN apt-get update && \
     && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb \
     && echo 'ea8277df4297afc507c61122f3c349af142f31e5 wkhtmltox.deb' | sha1sum -c - \
     && apt-get install --no-install-recommends -y ./wkhtmltox.deb \
-    && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
+    && rm -rf wkhtmltox.deb \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/logs/* \
+    && rm -fr /tmp/* 
 
 # install latest postgresql-client
 RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' > /etc/apt/sources.list.d/pgdg.list \
@@ -47,10 +50,16 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' > /et
     && apt-get update  \
     && apt-get install --no-install-recommends -y postgresql-client \
     && rm -f /etc/apt/sources.list.d/pgdg.list \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/logs/* \
+    && rm -fr /tmp/* 
 
 # Install rtlcss (on Debian buster)
-RUN npm install -g rtlcss
+RUN npm install -g rtlcss \
+    && npm cache clean --force \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/logs/* \
+    && rm -fr /tmp/* 
 
 # Install Odoo
 ENV ODOO_VERSION 16.0
@@ -94,7 +103,6 @@ RUN apt-get update \
         python3-reportlab \
         python3-requests \
         python3-stdnum \
-        # python3-tz \
         python3-vobject \
         python3-werkzeug \
         python3-xlsxwriter \
@@ -107,12 +115,15 @@ RUN apt-get update \
         jdatetime \
         persiantools \
         pytz==2023.3 \
-    && rm -rf \
-        /var/lib/apt/lists/* 
+    && pip cache purge \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/logs/* \
+    && rm -fr /tmp/* 
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
 COPY ./odoo.conf /etc/odoo/
+COPY wait-for-psql.py /usr/local/bin/wait-for-psql.py
 
 # Set permissions and Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
 RUN adduser --system \
@@ -130,7 +141,6 @@ EXPOSE 8069 8071 8072
 # Set the default config file
 ENV ODOO_RC /etc/odoo/odoo.conf
 
-COPY wait-for-psql.py /usr/local/bin/wait-for-psql.py
 
 # Set default user when running the container
 # USER odoo
