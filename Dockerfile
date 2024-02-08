@@ -117,6 +117,9 @@ RUN apt-get update \
         python3-ldap \
         python3-gevent \
         python3-rjsmin \
+        python3-geoip2 \
+        python3-idna \
+        python3-markupsafe \
     && pip install \
         openupgradelib \
         jdatetime \
