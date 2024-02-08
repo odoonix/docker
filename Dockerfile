@@ -116,6 +116,7 @@ RUN apt-get update \
         python3-zeep \
         python3-ldap \
         python3-gevent \
+        python3-rjsmin \
     && pip install \
         openupgradelib \
         jdatetime \
