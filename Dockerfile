@@ -110,6 +110,8 @@ RUN apt-get update \
         python3-zeep \
         python3-ldap \
         python3-gevent \
+        python3-geojson \
+        python3-shapely \
     && pip install \
         openupgradelib \
         jdatetime \
