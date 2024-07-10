@@ -120,13 +120,13 @@ RUN apt-get update \
         python3-geoip2 \
         python3-idna \
         python3-markupsafe \
+        python3-geojson \
+        python3-shapely \
     && pip install \
         openupgradelib \
         jdatetime \
         persiantools \
         pytz==2023.3 \
-        python3-geojson \
-        python3-shapely \
     && pip cache purge \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/logs/* \
