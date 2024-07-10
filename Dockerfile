@@ -125,6 +125,8 @@ RUN apt-get update \
         jdatetime \
         persiantools \
         pytz==2023.3 \
+        python3-geojson \
+        python3-shapely \
     && pip cache purge \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/logs/* \
