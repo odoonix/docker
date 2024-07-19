@@ -112,6 +112,7 @@ RUN apt-get update \
         python3-gevent \
         python3-geojson \
         python3-shapely \
+        python3-magic \
     && pip install \
         openupgradelib \
         jdatetime \
