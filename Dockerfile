@@ -113,6 +113,7 @@ RUN apt-get update \
         python3-geojson \
         python3-shapely \
         python3-magic \
+        python3-validators \
     && pip install \
         openupgradelib \
         jdatetime \
