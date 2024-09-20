@@ -78,6 +78,7 @@ RUN apt-get update \
         fonts-freefont-ttf \
         fonts-freefont-otf \
         fonts-noto-core \
+        python3-cachetools \
         fonts-inconsolata \
         fonts-font-awesome \
         fonts-roboto-unhinted \
@@ -123,6 +124,7 @@ RUN apt-get update \
         python3-geojson \
         python3-shapely \
         python3-validators \
+        python3-cachetools \
     && pip install \
         openupgradelib \
         jdatetime \
