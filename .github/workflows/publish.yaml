@@ -11,9 +11,9 @@ jobs:
                               registry: ghcr.io
                               username: ${{ github.actor }}
                               password: ${{ secrets.GITHUB_TOKEN }}
-                     - name: Build the Odoo Runner 17.0 Docker image
+                     - name: Build the Odoo Runner 18.0 Docker image
                        run: |
                               timetag=(`date +%Y%M%d`)
-                              docker build . --tag ghcr.io/odoonix/odoo-runner:17.0.${timetag} --tag ghcr.io/odoonix/odoo-runner:17.0
-                              docker push ghcr.io/odoonix/odoo-runner:17.0
-                              docker push ghcr.io/odoonix/odoo-runner:17.0.${timetag}
+                              docker build . --tag ghcr.io/odoonix/odoo-runner:18.0.${timetag} --tag ghcr.io/odoonix/odoo-runner:18.0
+                              docker push ghcr.io/odoonix/odoo-runner:18.0
+                              docker push ghcr.io/odoonix/odoo-runner:18.0.${timetag}
