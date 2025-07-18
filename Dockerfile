@@ -126,6 +126,7 @@ RUN apt-get update \
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
+COPY ./tools/odoo-update /usr/bin/
 COPY ./odoo.conf /etc/odoo/
 COPY wait-for-psql.py /usr/local/bin/wait-for-psql.py
 
@@ -136,7 +137,7 @@ RUN adduser --system \
 #    && chown odoo:odoo /var/lib/odoo \
 #    && chown odoo /etc/odoo/odoo.conf \
     && mkdir -p /mnt/extra-addons \
-#    && chown -R odoo /mnt/extra-addons
+    && chmod +x /usr/bin/odoo-update
 VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 
 # Expose Odoo services
