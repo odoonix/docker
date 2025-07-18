@@ -139,6 +139,7 @@ RUN apt-get update \
 COPY ./entrypoint.sh     /
 COPY ./odoo.conf         /etc/odoo/
 COPY ./wait-for-psql.py  /usr/local/bin/wait-for-psql.py
+COPY ./tools/odoo-update /usr/bin/
 
 # Set permissions and Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
 RUN adduser --system \
@@ -146,7 +147,8 @@ RUN adduser --system \
         --quiet --group odoo \
     && chown odoo /etc/odoo/odoo.conf \
     && mkdir -p /mnt/extra-addons \
-    && chown -R odoo /mnt/extra-addons
+    && chown -R odoo /mnt/extra-addons \
+    && chmod +x /usr/bin/odoo-update
 VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 
 # Expose Odoo services
