@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+import os
+import sys
+
+
+REAL_ODOO_BIN = os.path.expanduser('~/src/odoo/odoo-bin')
+PGDATABASE = os.environ.get('PGDATABASE', '')
+
+
+def get_odoo_args(args):
+    odoo_args = [
+        '--addons-path', os.environ['ADDONS_PATH'],
+        '--unaccent',
+        '--no-database-list',
+        '--proxy-mode',
+        '--geoip-db=/var/lib/GeoIP/GeoLite2-City.mmdb',
+        '--db_host', os.environ['PGHOST'],
+        '--db_port=5432',
+        '--db-filter=',
+        '--smtp', os.environ['SMTP_HOST'],
+        '--smtp-port', os.environ['SMTP_PORT'],
+        '--data-dir', '/home/odoo/data',
+        '--config', '/home/odoo/.config/odoo/odoo.conf',
+        '--workers=0',
+    ]
+    if not any(arg.startswith('--database') for arg in args):
+        odoo_args.extend(['--database', os.environ['PGDATABASE']])
+    if not any(arg.startswith('--db_maxconn') for arg in args):
+        odoo_args.append('--db_maxconn=16')
+    if not any(arg.startswith('--without-demo') for arg in args) and os.environ['ODOO_STAGE'] != 'dev':
+        odoo_args.append('--without-demo=all')
+    return args + odoo_args
+
+
+if __name__ == '__main__':
+    args = sys.argv[1:]
+    if not args or args[0] not in ('deploy', 'help', 'neutralize', 'obfuscate', 'scaffold', 'start'):
+        args = get_odoo_args(args)
+    if args[0] == 'obfuscate':
+        from odoosh.lib.obfuscate import obfuscate_cli
+        obfuscate_cli(args)
+
+    os.execvp(REAL_ODOO_BIN, ['odoo-bin'] + args)

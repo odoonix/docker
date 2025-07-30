@@ -1,0 +1,14 @@
+#!/bin/bash
+
+OPTS=' -e --color dark'
+
+ncdu $OPTS -x  ~/                            \
+    --exclude ~/backup.daily                 \
+    --exclude ~/src/odoo                     \
+    --exclude ~/src/enterprise               \
+    --exclude ~/src/themes                   \
+    --exclude ~/.repositories/odoo           \
+    --exclude ~/.repositories/odoo-eol       \
+    --exclude ~/.repositories/enterprise     \
+    --exclude ~/.repositories/enterprise-eol \
+    --exclude ~/.repositories/themes
