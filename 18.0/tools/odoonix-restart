@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""
+Restart odoonix services
+
+Usage:
+  odoosh-restart -h | --help
+  odoosh-restart <service>
+
+Services:
+  http                  Odoo http workers
+  cron                  Odoo cron worker (handles Incoming mails as well)
+
+Options:
+  -h, --help          Shows this screen and exit.
+"""
+import docopt
+import os
+import sys
+
+from odoosh import notifiers
+
+
+if __name__ == '__main__':
+    argv = sys.argv[1:] or ['-h']
+    args = docopt.docopt(__doc__, argv=argv)
+
+    service = args['<service>']
+    payload = {
+        'db': os.environ['PGDATABASE'],
+        'action': 'restart',
+        'args': {
+            'service': service,
+        },
+    }
+
+    if service in ['http', 'cron']:
+        with notifiers.OdoucheNotifier(with_callback=True) as notifier:
+            notifier.run(payload)
+    else:
+        sys.stderr.write(f"Unknown service '{service}' !\n\nUse odoosh-restart --help\n")
+        sys.exit(22)

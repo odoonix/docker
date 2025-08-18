@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# #!/usr/bin/env python3
+# """
+# Update Odoo module
+#
+# This script proceed to a manual update of one or more Odoo modules in the database.
+#
+# NOTE: this command is handy to quickly test updates during some development iterations,
+#       however keep in mind that on Odoo.sh the convention is to increase a module's
+#       version number in it's manifest file whenever the committed changes requires
+#       a database upgrade. Please refer to the documentation for more details:
+#       https://www.odoo.sh/doc/getting_started/branches.html#production
+#
+#
+# Usage:
+#   odoo-update [--help] <module>
+#
+# Options:
+#   -h, --help           Show this screen and exit.
+#   <module>             Module list to update separated by comma.
+#                        Use 'all' as module name to update all modules at once.
+# """
+# import os
+# import sys
+# import docopt
+# argv = sys.argv[1:] or ['-h']
+# args = docopt.docopt(__doc__, argv=argv)
+# cmd = ['/opt/odoo.sh/odoosh/bin/odoo-bin', '-u', args['<module>'], '--stop-after-init', '--no-http']
+# os.execv(cmd[0], cmd)
+
+
+
+# Check if a database name is provided
+if [ -z "$1" ]; then
+  echo "⚠️  Please provide the database name as an argument."
+  echo "Usage:"
+  echo "  odoo-update my_database"
+  exit 1
+fi
+
+
+CMD="/var/lib/odoo/odoo-bin"
+DB_NAME="$1"
+# Path to the Odoo configuration file (change this if needed)
+CONFIG_FILE="/etc/odoo/odoo.conf"
+GLOBAL_OPTIONS="--stop-after-init --without-demo=all --no-http"
+
+
+# Run the update
+echo "🚀 Updating database: $DB_NAME ..."
+$CMD -c "$CONFIG_FILE" -d "$DB_NAME" -u all $GLOBAL_OPTIONS
+
+# Check the result
+if [ $? -eq 0 ]; then
+  echo "✅ Update completed successfully."
+else
+  echo "❌ An error occurred during the update."
+fi
+
+
+
