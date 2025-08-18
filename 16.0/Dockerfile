@@ -20,6 +20,7 @@ RUN apt-get update && \
         python3-pdfminer \
         python3-pip \
         python3-phonenumbers \
+        python3-odf \
         python3-pyldap \
         python3-qrcode \
         python3-renderpm \

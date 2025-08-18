@@ -102,6 +102,7 @@ RUN apt-get update \
         python3-polib \
         python3-psutil \
         python3-psycopg2 \
+        python3-odf \
         python3-pydot \
         python3-openssl \
         python3-pypdf2 \
