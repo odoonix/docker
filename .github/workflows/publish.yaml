@@ -2,7 +2,7 @@ name: publishpublish
 run-name: ${{ github.actor }} build new image
 on: [push]
 jobs:
-       publish-odoo16-image:
+       publish-odoo-image:
               runs-on: ubuntu-latest
               steps:
                      - uses: actions/checkout@v2
@@ -11,9 +11,24 @@ jobs:
                               registry: ghcr.io
                               username: ${{ github.actor }}
                               password: ${{ secrets.GITHUB_TOKEN }}
+                     - name: Build the Odoo Runner 16.0 Docker image
+                       run: |
+                              timetag=(`date +%Y%M%d`)
+                              cd 16.0
+                              docker build . --tag ghcr.io/odoonix/odoo-runner:16.0.${timetag} --tag ghcr.io/odoonix/odoo-runner:16.0
+                              docker push ghcr.io/odoonix/odoo-runner:16.0
+                              docker push ghcr.io/odoonix/odoo-runner:16.0.${timetag}
                      - name: Build the Odoo Runner 17.0 Docker image
                        run: |
                               timetag=(`date +%Y%M%d`)
+                              cd 17.0
                               docker build . --tag ghcr.io/odoonix/odoo-runner:17.0.${timetag} --tag ghcr.io/odoonix/odoo-runner:17.0
                               docker push ghcr.io/odoonix/odoo-runner:17.0
                               docker push ghcr.io/odoonix/odoo-runner:17.0.${timetag}
+                     - name: Build the Odoo Runner 18.0 Docker image
+                       run: |
+                              timetag=(`date +%Y%M%d`)
+                              cd 18.0
+                              docker build . --tag ghcr.io/odoonix/odoo-runner:18.0.${timetag} --tag ghcr.io/odoonix/odoo-runner:18.0
+                              docker push ghcr.io/odoonix/odoo-runner:18.0
+                              docker push ghcr.io/odoonix/odoo-runner:18.0.${timetag}

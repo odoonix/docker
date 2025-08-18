@@ -115,6 +115,7 @@ RUN apt-get update \
         python3-shapely \
         python3-magic \
         python3-validators \
+        python3-cachetools \
     && pip install \
         openupgradelib \
         jdatetime \
