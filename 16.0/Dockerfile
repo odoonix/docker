@@ -3,8 +3,8 @@ FROM ubuntu:jammy
 SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
 
 # Generate locale C.UTF-8 for postgres and general locale data
-ENV LANG C.UTF-8
-
+ENV LANG en_US.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
 # Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \

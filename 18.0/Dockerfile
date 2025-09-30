@@ -4,6 +4,7 @@ SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
 
 # Generate locale C.UTF-8 for postgres and general locale data
 ENV LANG en_US.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Retrieve the target architecture to install the correct wkhtmltopdf package
 # ARG TARGETARCH amd64
