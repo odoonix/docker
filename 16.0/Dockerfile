@@ -32,10 +32,13 @@ RUN apt-get update && \
         python3-xlwt \
         python3-astor \
         xz-utils \
-    && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb \
-    && echo 'ea8277df4297afc507c61122f3c349af142f31e5 wkhtmltox.deb' | sha1sum -c - \
-    && apt-get install --no-install-recommends -y ./wkhtmltox.deb \
-    && rm -rf wkhtmltox.deb \
+    && TARGETARCH=amd64 \
+    && WKHTMLTOPDF_ARCH=amd64 \
+    && WKHTMLTOPDF_SHA=967390a759707337b46d1c02452e2bb6b2dc6d59  \
+    && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.jammy_${WKHTMLTOPDF_ARCH}.deb \
+    && echo ${WKHTMLTOPDF_SHA} wkhtmltox.deb | sha1sum -c - \
+    && apt-get install -y --no-install-recommends ./wkhtmltox.deb \
+    && rm -rf /var/lib/apt/lists/* wkhtmltox.deb \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/logs/* \
     && rm -fr /tmp/* 
