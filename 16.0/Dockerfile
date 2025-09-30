@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM ubuntu:jammy
 
 SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
 
