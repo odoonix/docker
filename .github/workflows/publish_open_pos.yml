@@ -1,0 +1,41 @@
+name: Build Open Pose Docker Image
+
+on:
+  push:
+    branches:
+      - 18.0
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      GIT_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    steps:
+    - name: Checkout main repo
+      uses: actions/checkout@v3
+
+    # - name: Clone additional repositories
+    #   run: |
+    #     git clone https://$GIT_TOKEN@github.com/odoonix/connector.git extera_addons/connector
+    #     git clone https://$GIT_TOKEN@github.com/odoonix/pos.git extera_addons/pos
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and Publish Docker Image
+      run: |
+        timetag=(`date +%Y%M%d`)
+        cd 18.0
+        docker build . --tag ghcr.io/odoonix/open-pose:18.0.${timetag} --tag ghcr.io/odoonix/open-pose:18.0
+        docker push ghcr.io/odoonix/open-pose:18.0
+        docker push ghcr.io/odoonix/open-pose:18.0.${timetag}
