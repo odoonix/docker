@@ -16,8 +16,8 @@ jobs:
         cd 18.0
         mkdir src
         mkdir src/OCA
-        git clone https://github.com/oca/server-ux.git src/OCA
-        git clone https://github.com/oca/connector.git src/OCA
+        git clone https://github.com/oca/server-ux.git src/OCA/server-ux
+        git clone https://github.com/oca/connector.git src/OCA/connector
         ls src/OCA
 
     - name: Set up Docker Buildx
