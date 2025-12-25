@@ -10,7 +10,7 @@ docker run --rm \
     --db_password odoo \
     --db_user odoo \
     --database odoo16-main \
-    --addons-path "/extra-add/odoo/addons,/extra-add/CybroAddons,/extra-add/odoo-exchange,/extra-add/odoo-viraweb123,/extra-add/odoo-mobile-service,/extra-add/sale-workflow,/extra-add/iot,/extra-add/odoo-beton,/extra-add/trip2persia,/extra-add/account-reconcile,/extra-add/bank-statement-import,/extra-add/odoo-hr" \
+    --addons-path "/extra-add/odoo/addons,/extra-add/odoo-exchange,/extra-add/odoo-viraweb123,/extra-add/odoo-mobile-service,/extra-add/sale-workflow,/extra-add/iot,/extra-add/odoo-beton,/extra-add/trip2persia,/extra-add/account-reconcile,/extra-add/bank-statement-import,/extra-add/odoo-hr" \
     --load vw_odooo_patch \
     --update  vw_hr_attendence \
     --dev all 
