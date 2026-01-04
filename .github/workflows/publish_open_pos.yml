@@ -44,3 +44,4 @@ jobs:
         docker build -f OpenPoS_Dockerfile --tag ghcr.io/odoonix/openpos:18.0.${timetag} --tag ghcr.io/odoonix/openpos:18.0 .
         docker push ghcr.io/odoonix/openpos:18.0
         docker push ghcr.io/odoonix/openpos:18.0.${timetag}
+
