@@ -18,7 +18,7 @@ jobs:
         mkdir src/oca
         mkdir src/odonix
         mkdir src/odoo
-        git clone --depth 1 --branch 18.0 https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/odoonix/pos.git src/odoonix/pos
+        git clone --depth 1 --branch 18.0 https://x-access-token:${{secrets.GITHUB_TOKEN}}@github.com/odoonix/pos.git src/odoonix/pos
         git clone --depth 1 --branch 18.0 https://github.com/odoo/odoo.git src/odoo/odoo
         git clone --depth 1 --branch 18.0 https://github.com/oca/server-ux.git src/oca/server-ux
         git clone --depth 1 --branch 18.0 https://github.com/oca/connector.git src/oca/connector
