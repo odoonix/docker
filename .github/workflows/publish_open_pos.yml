@@ -18,11 +18,13 @@ jobs:
         mkdir src/oca
         mkdir src/odonix
         mkdir src/odoo
-        git clone --branch 18.0 https://github.com/odoo/odoo.git src/odoo/odoo
-        git clone --branch 18.0 https://github.com/oca/server-ux.git src/oca/server-ux
-        git clone --branch 18.0 https://github.com/oca/connector.git src/oca/connector
-        git clone --branch 18.0 https://github.com/OCA/queue.git src/oca/queue
-        git clone --branch 18.0 https://github.com/OCA/pos.git src/oca/pos
+        git clone --depth 1 --branch 18.0 https://x-access-token:${ODOONIX_REPO_ACCESS_TOKEN}@github.com/odoonix/pos.git src/odoonix/pos
+        git clone --depth 1 --branch 18.0 https://github.com/odoo/odoo.git src/odoo/odoo
+        git clone --depth 1 --branch 18.0 https://github.com/oca/server-ux.git src/oca/server-ux
+        git clone --depth 1 --branch 18.0 https://github.com/oca/connector.git src/oca/connector
+        git clone --depth 1 --branch 18.0 https://github.com/OCA/queue.git src/oca/queue
+        git clone --depth 1 --branch 18.0 https://github.com/OCA/pos.git src/oca/pos
+
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
