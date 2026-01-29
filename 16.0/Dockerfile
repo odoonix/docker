@@ -16,9 +16,13 @@ RUN apt-get update && \
         libssl-dev \
         node-less \
         npm \
+        git \
         python3-num2words \
         python3-pdfminer \
         python3-pip \
+        python3-wheel \
+        python3-venv \
+        python3-phonenumbers \
         python3-phonenumbers \
         python3-odf \
         python3-pyldap \
@@ -134,6 +138,11 @@ RUN apt-get update \
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
 COPY ./tools/odoo-update /usr/bin/
+COPY ./tools/odoo-backup /usr/bin/
+COPY ./tools/odoo-drop /usr/bin/
+COPY ./tools/odoo-duplicate /usr/bin/
+COPY ./tools/odoo-load /usr/bin/
+COPY ./tools/odoo-rename /usr/bin/
 COPY ./odoo.conf /etc/odoo/
 COPY wait-for-psql.py /usr/local/bin/wait-for-psql.py
 
@@ -144,7 +153,13 @@ RUN adduser --system \
 #    && chown odoo:odoo /var/lib/odoo \
 #    && chown odoo /etc/odoo/odoo.conf \
     && mkdir -p /mnt/extra-addons \
-    && chmod +x /usr/bin/odoo-update
+    && chmod +x /usr/bin/odoo-update \
+    && chmod +x /usr/bin/odoo-update \
+    && chmod +x /usr/bin/odoo-backup \
+    && chmod +x /usr/bin/odoo-drop \
+    && chmod +x /usr/bin/odoo-duplicate \
+    && chmod +x /usr/bin/odoo-load \
+    && chmod +x /usr/bin/odoo-rename 
 VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 
 # Expose Odoo services

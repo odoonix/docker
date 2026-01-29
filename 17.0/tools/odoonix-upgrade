@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Pre install
+# apt install  python3-pip python3-wheel python3-venv git
+# pip install git+https://github.com/OCA/openupgradelib.git@master#egg=openupgradelib
+
+export OPENUPGRADE_TARGET_VERSION=17.0
+
+
+
+# Check if a database name is provided
+if [ -z "$1" ]; then
+  echo "⚠️  Please provide the database name as an argument."
+  echo "Usage:"
+  echo "  odoo-update my_database"
+  exit 1
+fi
+
+
+CMD="/var/lib/odoo/odoo-bin"
+DB_NAME="$1"
+# Path to the Odoo configuration file (change this if needed)
+CONFIG_FILE="/etc/odoo/odoo.conf"
+GLOBAL_OPTIONS="--stop-after-init --without-demo=all --no-http"
+
+
+# Run the update
+echo "🚀 Upgrading database: $DB_NAME ..."
+$CMD \
+   -c "$CONFIG_FILE" \
+   -d "$DB_NAME" \
+   --load=base,web,openupgrade_framework \
+   -u all $GLOBAL_OPTIONS
+
+# Check the result
+if [ $? -eq 0 ]; then
+  echo "✅ Upgrading completed successfully."
+else
+  echo "❌ An error occurred during the Upgrading."
+fi
+

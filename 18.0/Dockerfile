@@ -21,6 +21,7 @@ RUN apt-get update \
         libssl-dev \
         node-less \
         npm \
+        git \
         ncdu \
         python3-magic \
         python3-num2words \
@@ -139,9 +140,14 @@ RUN apt-get update \
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh     /
+COPY ./tools/odoo-update /usr/bin/
+COPY ./tools/odoo-backup /usr/bin/
+COPY ./tools/odoo-drop /usr/bin/
+COPY ./tools/odoo-duplicate /usr/bin/
+COPY ./tools/odoo-load /usr/bin/
+COPY ./tools/odoo-rename /usr/bin/
 COPY ./odoo.conf         /etc/odoo/
 COPY ./wait-for-psql.py  /usr/local/bin/wait-for-psql.py
-COPY ./tools/odoo-update /usr/bin/
 
 # Set permissions and Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
 RUN adduser --system \
@@ -150,7 +156,13 @@ RUN adduser --system \
     && chown odoo /etc/odoo/odoo.conf \
     && mkdir -p /mnt/extra-addons \
     && chown -R odoo /mnt/extra-addons \
-    && chmod +x /usr/bin/odoo-update
+    && chmod +x /usr/bin/odoo-update \
+    && chmod +x /usr/bin/odoo-update \
+    && chmod +x /usr/bin/odoo-backup \
+    && chmod +x /usr/bin/odoo-drop \
+    && chmod +x /usr/bin/odoo-duplicate \
+    && chmod +x /usr/bin/odoo-load \
+    && chmod +x /usr/bin/odoo-rename 
 VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 
 # Expose Odoo services

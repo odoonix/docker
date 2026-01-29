@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Check if a database name is provided
+if [ -z "$1" ]; then
+  echo "⚠️  Please provide the database name as an argument."
+  echo "Usage:"
+  echo "  odoonix-backup my_database"
+  exit 1
+fi
+
+
+CMD="/var/lib/odoo/odoo-bin"
+DB_NAME="$1"
+# Path to the Odoo configuration file (change this if needed)
+CONFIG_FILE="/etc/odoo/odoo.conf"
+GLOBAL_OPTIONS="--stop-after-init --without-demo=all --no-http"
+
+BACKUP_FILENAME="/var/lib/odoo-data/${DB_NAME}"
+
+
+# Run the update
+echo "🚀 Backup database: $DB_NAME ..."
+$CMD db \
+    -c "$CONFIG_FILE" \
+    load "$BACKUP_FILENAME"
+
+# Check the result
+if [ $? -eq 0 ]; then
+  echo "✅ Backup completed successfully."
+else
+  echo "❌ An error occurred during the update."
+fi
