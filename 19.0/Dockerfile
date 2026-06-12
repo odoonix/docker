@@ -163,7 +163,10 @@ COPY ./tools/odoonix-load /usr/bin/
 COPY ./tools/odoonix-rename /usr/bin/
 
 # Set permissions and Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
-RUN chown odoo /etc/odoo/odoo.conf \
+RUN adduser --system \
+        --home /var/lib/odoo \
+        --quiet --group odoo \
+    && chown odoo /etc/odoo/odoo.conf \
     && chmod +x /entrypoint.sh \
     && mkdir -p /mnt/extra-addons \
     && chown -R odoo /mnt/extra-addons \
@@ -184,7 +187,7 @@ ENV ODOO_RC /etc/odoo/odoo.conf
 COPY wait-for-psql.py /usr/local/bin/wait-for-psql.py
 
 # Set default user when running the container
-USER odoo
+# USER odoo
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["odoo"]
