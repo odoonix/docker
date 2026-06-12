@@ -142,12 +142,6 @@ RUN apt-get update \
         python3-shapely \
         python3-validators \
         python3-cachetools \
-    && pip install \
-        openupgradelib \
-        jdatetime \
-        persiantools \
-        pytz==2023.3 \
-    && pip cache purge \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/logs/* \
     && rm -fr /tmp/* 
