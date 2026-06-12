@@ -95,6 +95,7 @@ COPY ./tools/odoonix-rename /usr/bin/
 
 # Set permissions and Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
 RUN chown odoo /etc/odoo/odoo.conf \
+    && chmod +x /entrypoint.sh \
     && mkdir -p /mnt/extra-addons \
     && chown -R odoo /mnt/extra-addons \
     && chmod +x /usr/bin/odoo-update \
