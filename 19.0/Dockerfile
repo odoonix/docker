@@ -71,17 +71,86 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ noble-pgdg main' > /etc/a
     && rm -rf /var/lib/apt/lists/*
 
 # Install rtlcss (on Debian buster)
-RUN npm install -g rtlcss
+RUN npm install -g rtlcss \
+    && npm cache clean --force \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/logs/* \
+    && rm -fr /tmp/* 
 
 # Install Odoo
 ENV ODOO_VERSION 19.0
-ARG ODOO_RELEASE=20251222
-ARG ODOO_SHA=9e8816c0c76e1e89af884ce235032fb071d99510
-RUN curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
-    && echo "${ODOO_SHA} odoo.deb" | sha1sum -c - \
-    && apt-get update \
-    && apt-get -y install --no-install-recommends ./odoo.deb \
-    && rm -rf /var/lib/apt/lists/* odoo.deb
+# ARG ODOO_RELEASE=20251222
+# ARG ODOO_SHA=9e8816c0c76e1e89af884ce235032fb071d99510
+# RUN curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
+#     && echo "${ODOO_SHA} odoo.deb" | sha1sum -c - \
+#     && apt-get update \
+#     && apt-get -y install --no-install-recommends ./odoo.deb \
+#     && rm -rf /var/lib/apt/lists/* odoo.deb
+
+# Install Odoo tools
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+        adduser \
+        fonts-dejavu-core \
+        fonts-freefont-ttf \
+        fonts-freefont-otf \
+        fonts-noto-core \
+        python3-cachetools \
+        fonts-inconsolata \
+        fonts-font-awesome \
+        fonts-roboto-unhinted \
+        gsfonts \
+        libjs-underscore \
+        lsb-base \
+        postgresql-client \
+        python3-babel \
+        python3-chardet \
+        python3-dateutil \
+        python3-decorator \
+        python3-docutils \
+        python3-freezegun \
+        python3-pil \
+        python3-jinja2 \
+        python3-libsass \
+        python3-lxml \
+        python3-num2words \
+        python3-ofxparse \
+        python3-passlib \
+        python3-polib \
+        python3-psutil \
+        python3-psycopg2 \
+        python3-pydot \
+        python3-openssl \
+        python3-pypdf2 \
+        python3-qrcode \
+        python3-renderpm \
+        python3-reportlab \
+        python3-requests \
+        python3-stdnum \
+        python3-vobject \
+        python3-werkzeug \
+        python3-xlsxwriter \
+        python3-xlrd \
+        python3-zeep \
+        python3-ldap \
+        python3-gevent \
+        python3-rjsmin \
+        python3-geoip2 \
+        python3-idna \
+        python3-markupsafe \
+        python3-geojson \
+        python3-shapely \
+        python3-validators \
+        python3-cachetools \
+    && pip install \
+        openupgradelib \
+        jdatetime \
+        persiantools \
+        pytz==2023.3 \
+    && pip cache purge \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/logs/* \
+    && rm -fr /tmp/* 
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
