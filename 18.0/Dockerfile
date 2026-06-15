@@ -104,6 +104,7 @@ RUN pip install \
         python3-jinja2 \
         python3-libsass \
         python3-lxml \
+        python3-lxml-html-clean \
         python3-num2words \
         python3-ofxparse \
         python3-passlib \
