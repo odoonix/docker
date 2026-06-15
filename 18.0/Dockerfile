@@ -74,7 +74,12 @@ RUN npm install -g rtlcss \
     && rm -fr /tmp/* 
 
 # Install Odoo tools
-RUN apt-get update \
+RUN pip install \
+        openupgradelib \
+        jdatetime \
+        persiantools \
+        pytz==2023.3 \
+    && apt-get update \
     && apt-get install --no-install-recommends -y \
         adduser \
         fonts-dejavu-core \
@@ -149,10 +154,25 @@ COPY ./tools/odoonix-rename /usr/bin/
 COPY ./odoo.conf         /etc/odoo/
 COPY ./wait-for-psql.py  /usr/local/bin/wait-for-psql.py
 
-# Set permissions and Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
-RUN adduser --system \
-        --home /var/lib/odoo \
-        --quiet --group odoo \
+############################################################################
+# Odoo User
+# Set default user when running the container
+# Set permissions and Mount /var/lib/odoo to allow restoring filestore 
+# and /mnt/extra-addons for users addons
+############################################################################
+ARG UID=1363
+ARG GID=1363
+RUN groupadd \
+        -g ${GID} \
+        odoo \
+    && useradd \
+        --system \
+        --create-home \
+        --uid ${UID} \
+        --gid ${GID} \
+        --home /var/lib/odo \
+        --shell /bin/bash \
+        odoo \
     && chown odoo /etc/odoo/odoo.conf \
     && mkdir -p /mnt/extra-addons \
     && chown -R odoo /mnt/extra-addons \
@@ -170,15 +190,15 @@ EXPOSE 8069 8071 8072
 # Set the default config file
 ENV ODOO_RC /etc/odoo/odoo.conf
 
-
-# Set default user when running the container
-#USER odoo
-
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["odoo"]
 
 
 
 
-
+############################################################################
+# OpenUpgrad
+############################################################################
+RUN pip install \
+    git+https://github.com/OCA/openupgradelib.git@master#egg=openupgradelib
 
