@@ -212,5 +212,7 @@ CMD ["odoo"]
 ############################################################################
 RUN pip install \
     --break-system-packages \
-    git+https://github.com/OCA/openupgradelib.git@master#egg=openupgradelib
+    git+https://github.com/OCA/openupgradelib.git@master#egg=openupgradelib \
+    jdatetime \
+    persiantools
 
