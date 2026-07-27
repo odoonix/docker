@@ -1,0 +1,49 @@
+name: Build Open Pose Docker Image
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      GIT_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    steps:
+    - name: Checkout main repo
+      uses: actions/checkout@v3
+
+    - name: Clone additional repositories
+      run: |
+        cd 18.0
+        mkdir src
+        mkdir src/oca
+        mkdir src/odonix
+        mkdir src/odoo
+        git clone --depth 1 --branch 19.0 https://github.com/odoo/odoo.git src/odoo/odoo
+        git clone --depth 1 --branch 19.0 https://github.com/oca/server-ux.git src/oca/server-ux
+        git clone --depth 1 --branch 19.0 https://github.com/oca/connector.git src/oca/connector
+        git clone --depth 1 --branch 19.0 https://github.com/OCA/queue.git src/oca/queue
+        git clone --depth 1 --branch 19.0 https://github.com/OCA/pos.git src/oca/pos
+        git clone --depth 1 --branch 19.0 https://github.com/OCA/web.git src/oca/web
+        git clone --depth 1 --branch 19.0 https://x-access-token:${{secrets.ODOONIX_REPO_ACCESS_TOKEN}}@github.com/odoonix/pos.git src/odoonix/pos
+        git clone --depth 1 --branch 19.0 https://x-access-token:${{secrets.ODOONIX_REPO_ACCESS_TOKEN}}@github.com/odoonix/connector.git src/odoonix/connector
+
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+
+    - name: Build and Publish Docker Image
+      run: |
+        timetag=(`date +%Y%M%d`)
+        cd 18.0
+        docker build -f OpenPoS_Dockerfile --tag ghcr.io/odoonix/openpos:19.0.${timetag} --tag ghcr.io/odoonix/openpos:19.0 .
+        docker push ghcr.io/odoonix/openpos:19.0
+        docker push ghcr.io/odoonix/openpos:19.0.${timetag}
+

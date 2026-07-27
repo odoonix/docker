@@ -1,0 +1,95 @@
+#!/bin/bash
+
+set -e
+
+if [ -v PASSWORD_FILE ]; then
+    PASSWORD="$(< $PASSWORD_FILE)"
+fi
+
+
+#########################################################################################
+# Init Database
+#
+# set the postgres database host, port, user and password according to the environment
+# and pass them as arguments to the odoo process if not present in the config file
+#########################################################################################
+: ${HOST:=${DB_PORT_5432_TCP_ADDR:='db'}}
+: ${PORT:=${DB_PORT_5432_TCP_PORT:=5432}}
+: ${USER:=${DB_ENV_POSTGRES_USER:=${POSTGRES_USER:='odoo'}}}
+: ${PASSWORD:=${DB_ENV_POSTGRES_PASSWORD:=${POSTGRES_PASSWORD:='odoo'}}}
+: ${DB_NAME:=${DB_ENV_NAME:=${DB_ENV_NAME:='odoo'}}}
+
+
+DB_ARGS=()
+function check_config() {
+    param="$1"
+    value="$2"
+    if grep -q -E "^\s*\b${param}\b\s*=" "$ODOO_RC" ; then       
+        value=$(grep -E "^\s*\b${param}\b\s*=" "$ODOO_RC" |cut -d " " -f3|sed 's/["\n\r]//g')
+    fi;
+    DB_ARGS+=("--${param}")
+    DB_ARGS+=("${value}")
+}
+check_config "db_host" "$HOST"
+check_config "db_port" "$PORT"
+check_config "db_user" "$USER"
+check_config "db_password" "$PASSWORD"
+
+#########################################################################################
+# Update/Inint Addons
+#
+# 
+#########################################################################################
+: ${INIT_MODULES:=${ODOO_INIT_MODULES:=${ODOO_INIT_MODULES:='web'}}}
+
+MARKER_FILE="/var/lib/odoo/.initialized"
+echo "▶ Using database: $DB_NAME"
+
+ODOO_ARGS=()
+function check_odoo_config() {
+    param="$1"
+    value="$2"
+    if grep -q -E "^\s*\b${param}\b\s*=" "$ODOO_RC" ; then       
+        value=$(grep -E "^\s*\b${param}\b\s*=" "$ODOO_RC" |cut -d " " -f3|sed 's/["\n\r]//g')
+    fi;
+    ODOO_ARGS+=("--${param}")
+    ODOO_ARGS+=("${value}")
+}
+
+check_odoo_config "database" "$DB_NAME"
+if [ ! -f "$MARKER_FILE" ]; then
+    echo "Database not found, running initial module install..."
+    check_odoo_config "init" "$INIT_MODULES"
+else
+    echo "Database exists, running module update..."
+    check_odoo_config "update" "$INIT_MODULES"
+fi
+
+
+#########################################################################################
+# Launch Odoo
+#
+# 
+#########################################################################################
+case "$1" in
+    -- | odoo)
+        shift
+        if [[ "$1" == "scaffold" ]] ; then
+            exec /var/lib/odoo/odoo-bin "$@"
+        else
+            wait-for-psql.py ${DB_ARGS[@]} --timeout=30
+            exec /var/lib/odoo/odoo-bin "$@" "${DB_ARGS[@]}" "${ODOO_ARGS[@]}"
+            
+            echo "$DB_NAME" > "$MARKER_FILE"
+            echo "▶ Initialization completed"
+        fi
+        ;;
+    -*)
+        wait-for-psql.py ${DB_ARGS[@]} --timeout=30
+        exec /var/lib/odoo/odoo-bin "$@" "${DB_ARGS[@]}"
+        ;;
+    *)
+        exec "$@"
+esac
+
+exit 1

@@ -1,0 +1,21 @@
+FROM ghcr.io/odoonix/odoo-runner:19.0
+# User : odoo
+# group: odoo
+# home dir: /var/lib/odoo
+
+# /usr/bin/odoo-update   : update odoo
+
+#  /var/lib/odoo         : Odoo code
+#  /mnt/extra-addons     : extran addons
+#  /etc/odoo/odoo.conf   : Odoo cnf
+RUN mkdir -p /mnt/extra-addons/oca \
+    && mkdir -p /mnt/extra-addons/odoo \
+    && mkdir -p /mnt/extra-addons/odoonix
+
+COPY OpenPoS_odoo.conf           /etc/odoo/odoo.conf
+COPY OpenPoS_README.rst          /README.rst
+COPY OpenPoS_entrypoint.sh       /entrypoint.sh
+COPY src/oca/                    /mnt/extra-addons/oca
+COPY src/odoonix/                /mnt/extra-addons/odoonix
+COPY src/odoo/odoo/              /var/lib/odoo
+
