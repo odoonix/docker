@@ -13,7 +13,7 @@ CMD="/var/lib/odoo/odoo-bin"
 DB_NAME="$1"
 # Path to the Odoo configuration file (change this if needed)
 CONFIG_FILE="/etc/odoo/odoo.conf"
-GLOBAL_OPTIONS="--stop-after-init --without-demo=all --no-http"
+GLOBAL_OPTIONS="--stop-after-init --without-demo=all --no-http --http-port=8889""
 
 BACKUP_FILENAME="/var/lib/odoo-data/backup/${DB_NAME}"
 

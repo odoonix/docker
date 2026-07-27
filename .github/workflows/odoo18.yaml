@@ -32,10 +32,3 @@ jobs:
                               docker build . --tag ghcr.io/odoonix/odoo-runner:18.0.${timetag} --tag ghcr.io/odoonix/odoo-runner:18.0
                               docker push ghcr.io/odoonix/odoo-runner:18.0
                               docker push ghcr.io/odoonix/odoo-runner:18.0.${timetag}
-                     - name: Build the Odoo Runner 19.0 Docker image
-                       run: |
-                              timetag=(`date +%Y%M%d`)
-                              cd 19.0
-                              docker build . --tag ghcr.io/odoonix/odoo-runner:19.0.${timetag} --tag ghcr.io/odoonix/odoo-runner:19.0
-                              docker push ghcr.io/odoonix/odoo-runner:19.0
-                              docker push ghcr.io/odoonix/odoo-runner:19.0.${timetag}

@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+"""
+Configure PostgreSQL External Access (dedicated hosting only)
+
+Usage:
+  odoosh-sql-access -h | --help
+  odoosh-sql-access <command>
+
+Commands:
+  status            Display the current status and the list of connected clients
+  init              Initialize PostgreSQL External Access for the database
+  reset             Reset the external access password for this database
+  disable           Disable PostgreSQL External Access service for this database (clears the password)
+  kill              Forcefully kills all existing external connections to the database
+
+Options:
+  -h, --help              Shows this screen and exit.
+
+
+PostgreSQL External Access allows read-only connections from remote machines
+to an Odoo.sh database, such as for connecting BI tools.
+
+This feature is exclusively accessible to projects operating on dedicated
+servers and the use of PostgreSQL clients that support SSL is mandatory.
+Some PostgreSQL clients are not compatible with Odoo.sh. To date, PgAdmin
+and Qlik Sense have been identified as incompatible.
+
+To activate this functionality, use the `odoosh-sql-access init` command.
+This will generate a password and provide the necessary connection details.
+Please note that external connections may be interrupted at any time during
+platform updates or maintenance operations.
+"""
+import docopt
+import os
+import sys
+
+from odoosh import notifiers
+
+
+if __name__ == '__main__':
+    argv = sys.argv[1:] or ['-h']
+    args = docopt.docopt(__doc__, argv=argv)
+
+    command = args['<command>']
+
+    payload = {
+        'db': os.getenv('PGDATABASE'),
+        'action': 'sql_access',
+        'args': {
+            'command': command,
+        },
+    }
+
+    if command in ('status', 'init', 'reset', 'kill', 'disable'):
+        if command in ('reset', 'disable'):
+            payload2 = payload.copy()
+            payload2['args'] = {
+                'command': 'is-enabled',
+                'json': True,
+            }
+            with notifiers.OdoucheNotifier(with_callback=True) as notifier:
+                res = next(notifier.call(payload2))
+                if res == '1':
+                    answer = input("This command will erase the previous password.\n\nDo you want to continue ? (y/N)")
+                    if answer.strip() not in ('y', 'Y'):
+                        print("Aborting.")
+                        sys.exit()
+
+        with notifiers.OdoucheNotifier(with_callback=True) as notifier:
+            notifier.run(payload)
+    else:
+        sys.stderr.write(f"Unknown command '{command}' !\n\nUse odoosh-sql-access --help\n")
+        sys.exit(22)
