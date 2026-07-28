@@ -152,8 +152,8 @@ RUN apt-get update \
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
 COPY ./odoo.conf /etc/odoo/
-COPY ./tools/odoo-udpate /usr/bin/
 COPY ./tools/odoo-shell /usr/bin/
+COPY ./tools/odoo-update /usr/bin/
 COPY ./tools/odoonix-init /usr/bin/
 COPY ./tools/odoonix-drop /usr/bin/
 COPY ./tools/odoonix-dump /usr/bin/
