@@ -1,0 +1,139 @@
+#!/bin/bash
+
+set -e
+
+CMD="/var/lib/odoo/odoo-bin"
+CONFIG_FILE="/etc/odoo/odoo.conf"
+GLOBAL_OPTIONS="--config $CONFIG_FILE"
+
+# Default values
+WITH_DEMO=false
+FORCE=false
+COUNTRY=""
+LANGUAGE="en_US"
+USERNAME="admin"
+PASSWORD=""
+
+usage() {
+    cat <<EOF
+Usage:
+  $(basename "$0") [OPTIONS] DATABASE_NAME
+
+Options:
+  --with-demo               Install demo data
+  --force                   Delete database if it already exists
+  --country CODE            Country ISO code (e.g. IR, US, DE)
+  --language CODE           Language code (default: en_US)
+  --username USERNAME       Admin username (default: admin)
+  --password PASSWORD       Admin password (default: random)
+  -h, --help                Show this help
+
+Examples:
+  $(basename "$0") mydb
+
+  $(basename "$0") \
+      --with-demo \
+      --country IR \
+      --language fa_IR \
+      --username admin \
+      --password secret \
+      mydb
+
+EOF
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --with-demo)
+            WITH_DEMO=true
+            shift
+            ;;
+        --force)
+            FORCE=true
+            shift
+            ;;
+        --country)
+            COUNTRY="$2"
+            shift 2
+            ;;
+        --language)
+            LANGUAGE="$2"
+            shift 2
+            ;;
+        --username)
+            USERNAME="$2"
+            shift 2
+            ;;
+        --password)
+            PASSWORD="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -*)
+            echo "Unknown option: $1"
+            usage
+            exit 1
+            ;;
+        *)
+            DB_NAME="$1"
+            shift
+            ;;
+    esac
+done
+
+# Check database name
+if [[ -z "$DB_NAME" ]]; then
+    echo "Database name is required."
+    usage
+    exit 1
+fi
+
+# Generate random password if not specified
+if [[ -z "$PASSWORD" ]]; then
+    PASSWORD=$(openssl rand -base64 16)
+fi
+
+# Build command
+ARGS=(
+    db
+    init
+    "$DB_NAME"
+    --config "$CONFIG_FILE"
+    --username "$USERNAME"
+    --password "$PASSWORD"
+    --language "$LANGUAGE"
+)
+
+[[ "$WITH_DEMO" == true ]] && ARGS+=(--with-demo)
+[[ "$FORCE" == true ]] && ARGS+=(--force)
+[[ -n "$COUNTRY" ]] && ARGS+=(--country "$COUNTRY")
+
+echo
+echo "Database : $DB_NAME"
+echo "Username : $USERNAME"
+echo
+read -rp "Are you sure you want to initialize this database? [y/N]: " answer
+
+case "$answer" in
+    [Yy]|[Yy][Ee][Ss])
+        echo "🚀 Starting..."
+        ;;
+    *)
+        echo "❌ Operation cancelled."
+        exit 0
+        ;;
+esac
+echo "🚀 Initializing database: $DB_NAME"
+
+"$CMD" "${ARGS[@]}"
+
+echo
+echo "✅ Init completed successfully."
+echo "   Database : $DB_NAME"
+echo "   Username : $USERNAME"
+echo "   Password : $PASSWORD"
+

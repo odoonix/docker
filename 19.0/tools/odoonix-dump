@@ -7,7 +7,9 @@ CONFIG_FILE="/etc/odoo/odoo.conf"
 GLOBAL_OPTIONS="--config $CONFIG_FILE"
 
 # Default values
-FORCE=false
+NO_FILESTORE=false
+FORMAT="zip"
+
 
 usage() {
     cat <<EOF
@@ -15,7 +17,9 @@ Usage:
   $(basename "$0") [OPTIONS] DATABASE_NAME
 
 Options:
-  --force                   Delete database if it already exists
+  --format  zip,dump        If provided, database is dumped used the specified format. Supported formats are zip (default), dump (pg_dump format).
+  --no-filestore            Zip database is dumped without filestore
+  --force                   Force to create dump
   -h, --help                Show this help
 
 Examples:
@@ -23,6 +27,8 @@ Examples:
 
   $(basename "$0") \
       --force \
+      --no-filestore \
+      --format zip \
       mydb
 
 EOF
@@ -34,6 +40,14 @@ while [[ $# -gt 0 ]]; do
         --force)
             FORCE=true
             shift
+            ;;
+        --format)
+            FORMAT="$2"
+            shift 2
+            ;;
+        --no-filestore)
+            NO_FILESTORE=true
+            shift 2
             ;;
         -h|--help)
             usage
@@ -60,16 +74,23 @@ fi
 
 
 # Build command
+BACKUP_FILENAME="/var/lib/odoo-data/backup/${DB_NAME}-$(date +%s).zip"
 ARGS=(
     db
-    drop
+    dump
     "$DB_NAME"
+    "BACKUP_FILENAME"
+    --config "$CONFIG_FILE"
 )
+
+[[ "$NO_FILESTORE" == true ]] && ARGS+=(--no-filestore)
+
 
 echo
 echo "Database : $DB_NAME"
+echo "Format   : $FORMAT"
 echo
-read -rp "Are you sure you want to drop this database? [y/N]: " answer
+read -rp "Are you sure you want to backup this database? [y/N]: " answer
 
 case "$answer" in
     [Yy]|[Yy][Ee][Ss])
@@ -80,12 +101,14 @@ case "$answer" in
         exit 0
         ;;
 esac
-echo "🚀 Droping database: $DB_NAME"
-
+echo "🚀 Dumping database: $DB_NAME"
 
 "$CMD" "${ARGS[@]}"
 
 echo
-echo "✅ Drop completed successfully."
+echo "✅ Dump completed successfully."
 echo "   Database : $DB_NAME"
+echo "   Format   : $FORMAT"
+
+
 

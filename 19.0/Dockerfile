@@ -152,9 +152,11 @@ RUN apt-get update \
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
 COPY ./odoo.conf /etc/odoo/
-COPY ./tools/odoo-update /usr/bin/
-COPY ./tools/odoonix-backup /usr/bin/
+COPY ./tools/odoo-udpate /usr/bin/
+COPY ./tools/odoo-shell /usr/bin/
+COPY ./tools/odoonix-init /usr/bin/
 COPY ./tools/odoonix-drop /usr/bin/
+COPY ./tools/odoonix-dump /usr/bin/
 COPY ./tools/odoonix-duplicate /usr/bin/
 COPY ./tools/odoonix-load /usr/bin/
 COPY ./tools/odoonix-rename /usr/bin/
@@ -183,9 +185,11 @@ RUN groupadd \
     && chmod +x /entrypoint.sh \
     && mkdir -p /mnt/extra-addons \
     && chown -R odoo /mnt/extra-addons \
+    && chmod +x /usr/bin/odoo-shell \
     && chmod +x /usr/bin/odoo-update \
-    && chmod +x /usr/bin/odoonix-backup \
+    && chmod +x /usr/bin/odoonix-init \
     && chmod +x /usr/bin/odoonix-drop \
+    && chmod +x /usr/bin/odoonix-dump \
     && chmod +x /usr/bin/odoonix-duplicate \
     && chmod +x /usr/bin/odoonix-load \
     && chmod +x /usr/bin/odoonix-rename 

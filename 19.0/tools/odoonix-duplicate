@@ -1,32 +1,123 @@
 #!/bin/bash
 
-# Check if a database name is provided
-if [ -z "$1" ]; then
-  echo "⚠️  Please provide the database name as an argument."
-  echo "Usage:"
-  echo "  odoonix-duplicate my_database target_database"
-  exit 1
-fi
-
+set -e
 
 CMD="/var/lib/odoo/odoo-bin"
-DB_NAME="$1"
-DB_TARGET_NAME="$2"
-# Path to the Odoo configuration file (change this if needed)
 CONFIG_FILE="/etc/odoo/odoo.conf"
-GLOBAL_OPTIONS="--stop-after-init --without-demo=all --no-http --http-port=8889""
+GLOBAL_OPTIONS="--config $CONFIG_FILE"
+
+# Default values
+NEUTRALIZE=true
+FORMAT="zip"
 
 
-# Run the update
-echo "🚀 duplicate database: $DB_NAME ..."
-$CMD db \
-    -c "$CONFIG_FILE" \
-    duplicate "$DB_NAME" \
-    "$DB_TARGET_NAME"
+usage() {
+    cat <<EOF
+Usage:
+  $(basename "$0") [OPTIONS] DATABASE_SOURCE DATABASE_TARGET
 
-# Check the result
-if [ $? -eq 0 ]; then
-  echo "✅ duplicate completed successfully."
-else
-  echo "❌ An error occurred during the update."
+Options:
+  --neutralize            Neutralize the database, after restoring it (enabled by default).
+  --no-neutralize         Disable neutralization.
+  --force                 Delete the target database if it already exists, before initializing the new one.
+  -h, --help              Show this help
+
+Examples:
+  $(basename "$0") mydb mydb2
+
+  $(basename "$0") \
+      --force \
+      --no-neutralize \
+      mydb mydb2
+
+  $(basename "$0") \
+      --force \
+      --neutralize \
+      mydb mydb2
+    
+EOF
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --force)
+            FORCE=true
+            shift
+            ;;
+        --no-neutralize)
+            NEUTRALIZE=false
+            shift 2
+            ;;
+        --neutralize)
+            NEUTRALIZE=true
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -*)
+            echo "Unknown option: $1"
+            usage
+            exit 1
+            ;;
+        *)
+            POSITIONAL+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# Expect exactly two positional arguments
+if [[ ${#POSITIONAL[@]} -ne 2 ]]; then
+    echo "Error: source and target database names are required."
+    echo
+    usage
+    exit 1
 fi
+
+SOURCE_NAME="${POSITIONAL[0]}"
+TARGET_NAME="${POSITIONAL[1]}"
+
+
+# Build command
+ARGS=(
+    db
+    duplicate
+    "$SOURCE_NAME"
+    "$TARGET_NAME"
+    --config "$CONFIG_FILE"
+)
+
+[[ "$NEUTRALIZE" == true ]] && ARGS+=(--neutralize)
+
+
+echo
+echo "Source     : $SOURCE_NAME"
+echo "Target     : $TARGET_NAME"
+echo "Neutralize : $NEUTRALIZE"
+echo
+read -rp "Are you sure you want to dublicate this database? [y/N]: " answer
+
+case "$answer" in
+    [Yy]|[Yy][Ee][Ss])
+        echo "🚀 Starting..."
+        ;;
+    *)
+        echo "❌ Operation cancelled."
+        exit 0
+        ;;
+esac
+echo "🚀 Dublicating database: $DB_NAME"
+
+"$CMD" "${ARGS[@]}"
+
+echo
+echo "✅ Duplication completed successfully."
+echo "Source     : $SOURCE_NAME"
+echo "Target     : $TARGET_NAME"
+echo "Neutralize : $NEUTRALIZE"
+
+
+
