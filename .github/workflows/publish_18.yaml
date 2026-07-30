@@ -1,5 +1,5 @@
 name: publishpublish
-run-name: ${{ github.actor }} build new image
+run-name: ${{ github.actor }} build new image 18.0
 on: [push]
 jobs:
        publish-odoo-image:

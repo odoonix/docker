@@ -133,12 +133,7 @@ RUN pip install \
         python3-shapely \
         python3-validators \
         python3-cachetools \
-    && pip install \
-        openupgradelib \
-        jdatetime \
-        persiantools \
-        pytz==2023.3 \
-    && pip cache purge \
+        python3-jose \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/logs/* \
     && rm -fr /tmp/* 
@@ -200,6 +195,8 @@ CMD ["odoo"]
 # OpenUpgrad
 ############################################################################
 RUN pip install \
-    git+https://github.com/OCA/openupgradelib.git@master#egg=openupgradelib
-
-RUN pip3 install lxml_html_clean
+    --break-system-packages \
+    git+https://github.com/OCA/openupgradelib.git@master#egg=openupgradelib \
+    jdatetime \
+    persiantools \
+    lxml_html_clean
