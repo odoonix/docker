@@ -84,10 +84,10 @@ TARGET_NAME="${POSITIONAL[1]}"
 # Build command
 ARGS=(
     db
+    --config "$CONFIG_FILE"
     duplicate
     "$SOURCE_NAME"
     "$TARGET_NAME"
-    --config "$CONFIG_FILE"
 )
 
 [[ "$NEUTRALIZE" == true ]] && ARGS+=(--neutralize)

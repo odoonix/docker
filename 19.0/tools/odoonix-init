@@ -100,9 +100,9 @@ fi
 # Build command
 ARGS=(
     db
+    --config "$CONFIG_FILE"
     init
     "$DB_NAME"
-    --config "$CONFIG_FILE"
     --username "$USERNAME"
     --password "$PASSWORD"
     --language "$LANGUAGE"
