@@ -195,7 +195,6 @@ CMD ["odoo"]
 # OpenUpgrad
 ############################################################################
 RUN pip3 install \
-    git+https://github.com/OCA/openupgradelib.git@master#egg=openupgradelib \
     jdatetime \
     persiantools \
     lxml_html_clean
