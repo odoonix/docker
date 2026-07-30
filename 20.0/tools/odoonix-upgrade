@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Check if a database name is provided
+if [ -z "$1" ]; then
+  echo "⚠️  Please provide the database name as an argument."
+  echo "Usage:"
+  echo "  odoonix-upgrade my_database"
+  exit 1
+fi
+
