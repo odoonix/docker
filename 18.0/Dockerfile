@@ -195,7 +195,6 @@ CMD ["odoo"]
 # OpenUpgrad
 ############################################################################
 RUN pip install \
-    --break-system-packages \
     git+https://github.com/OCA/openupgradelib.git@master#egg=openupgradelib \
     jdatetime \
     persiantools \
