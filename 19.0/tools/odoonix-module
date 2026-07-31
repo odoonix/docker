@@ -1,0 +1,127 @@
+#!/bin/bash
+
+set -e
+
+CMD="/var/lib/odoo/odoo-bin"
+CONFIG_FILE="/etc/odoo/odoo.conf"
+GLOBAL_OPTIONS="--config $CONFIG_FILE"
+
+# Default values
+DB_NAME=false
+FORCE=false
+OUTDATED=false
+
+usage() {
+    cat <<EOF
+Usage:
+  $(basename "$0") [OPTIONS] COMMAND MODULE MODULE ..
+
+Options:
+  --force                   Delete database if it already exists
+  --database                Odoo database name.
+  --outdated                Use with update command
+  -h, --help                Show this help
+
+Examples:
+  $(basename "$0") --database mydb install web
+
+  $(basename "$0") \
+      --force \
+      --database mydb \
+      update \
+      web \
+      connector \
+      connector-shopify
+
+EOF
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --force)
+            FORCE=true
+            shift
+            ;;
+        --outdated)
+            OUTDATED=true
+            shift
+            ;;
+        -d|--database)
+            DB_NAME=$2
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -*)
+            echo "Unknown option: $1"
+            usage
+            exit 1
+            ;;
+        *)
+            POSITIONAL+=("$1")
+            shift
+            ;;
+    esac
+done
+
+
+
+# Expect at least one positional argument
+if [[ ${#POSITIONAL[@]} -lt 1 ]]; then
+    echo "Error: command and module name are required."
+    echo
+    usage
+    exit 1
+fi
+
+COMMAND="${POSITIONAL[0]}"
+MODULES=("${POSITIONAL[@]:1}")
+
+# Check database name
+if [[ -z "$COMMAND" ]]; then
+    echo "COMMAND is required."
+    usage
+    exit 1
+fi
+
+# Build command
+ARGS=(
+    module
+    $COMMAND
+    --config "$CONFIG_FILE"
+    --database $DB_NAME
+)
+
+[[ "$COMMAND" == "update" && "$OUTDATED" == "true" ]] && ARGS+=(--outdated)
+
+ARGS+=( ${MODULES[@]} )
+
+echo
+echo "Database : $DB_NAME"
+echo "Command  : $COMMAND"
+echo "Modules  : ${MODULES[@]}"
+echo
+read -rp "Are you sure you want to run command this database? [y/N]: " answer
+
+case "$answer" in
+    [Yy]|[Yy][Ee][Ss])
+        echo "🚀 Starting..."
+        ;;
+    *)
+        echo "❌ Operation cancelled."
+        exit 0
+        ;;
+esac
+echo "🚀 Running command on database: $DB_NAME"
+
+"$CMD" "${ARGS[@]}"
+
+echo
+echo "✅ The command completed successfully."
+echo "Database : $DB_NAME"
+echo "Command  : $COMMAND"
+echo "Modules  : ${MODULES[@]}"
+
