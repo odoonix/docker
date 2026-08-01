@@ -1,0 +1,125 @@
+#!/bin/bash
+
+set -e
+
+CMD="/var/lib/odoo/odoo-bin"
+CONFIG_FILE="/etc/odoo/odoo.conf"
+GLOBAL_OPTIONS="--config $CONFIG_FILE"
+
+# Default values
+COMMAND="install"
+FORCE_DEMO=false
+
+
+usage() {
+    cat <<EOF
+Usage:
+  $(basename "$0") [OPTIONS] DATABASE MODULE
+
+Options:
+  --install  
+  --uninstall
+  --upgrade
+  --force-demo
+  -h, --help              Show this help
+
+Examples:
+  $(basename "$0") mydb web
+
+  $(basename "$0") \
+      --uninstall \
+      mydb connector-shopify
+
+  $(basename "$0") \
+      --install \
+      mydb connector-shopify
+    
+EOF
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --install)
+            COMMAND="install"
+            shift
+            ;;
+        --uninstall)
+            COMMAND="uninstall"
+            shift 2
+            ;;
+        --upgrade)
+            COMMAND="upgrade"
+            shift 2
+            ;;
+        --force-demo)
+            FORCE_DEMO=true
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -*)
+            echo "Unknown option: $1"
+            usage
+            exit 1
+            ;;
+        *)
+            POSITIONAL+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# Expect exactly two positional arguments
+if [[ ${#POSITIONAL[@]} -ne 1 ]]; then
+    echo "Error: Database is required."
+    echo
+    usage
+    exit 1
+fi
+
+DATABASE="${POSITIONAL[0]}"
+MODULES=("${POSITIONAL[@]:1}")
+
+
+# Build command
+ARGS=(
+    module
+    $COMMAND
+    --config "$CONFIG_FILE"
+)
+
+[[ "$COMMAND" == "install" ]] && ARGS+=( -d $DATABASE)
+[[ "$COMMAND" == "uninstall" ]] && ARGS+=( -d $DATABASE)
+[[ "$COMMAND" == "upgrade" ]] && ARGS+=( -d $DATABASE)
+
+echo
+echo "Database    : $DATABASE"
+echo "Modules     : ${MODULES[@]}"
+echo "Command     : $COMMAND"
+echo
+read -rp "Are you sure you want to run command this database? [y/N]: " answer
+
+case "$answer" in
+    [Yy]|[Yy][Ee][Ss])
+        echo "🚀 Starting..."
+        ;;
+    *)
+        echo "❌ Operation cancelled."
+        exit 0
+        ;;
+esac
+echo "🚀 Running command database: $DB_NAME"
+
+"$CMD" "${ARGS[@]}" "${MODULES[@]}"
+
+echo
+echo "✅ Module operation completed successfully."
+echo "Database    : $DATABASE"
+echo "Modules     : ${MODULES[@]}"
+echo "Command     : $COMMAND"
+
+
+

@@ -77,10 +77,10 @@ fi
 BACKUP_FILENAME="/var/lib/odoo-data/backup/${DB_NAME}-$(date +%s).zip"
 ARGS=(
     db
+    --config "$CONFIG_FILE"
     dump
     "$DB_NAME"
     "BACKUP_FILENAME"
-    --config "$CONFIG_FILE"
 )
 
 [[ "$NO_FILESTORE" == true ]] && ARGS+=(--no-filestore)
