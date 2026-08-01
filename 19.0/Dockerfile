@@ -159,6 +159,7 @@ COPY ./tools/odoonix-dump /usr/bin/
 COPY ./tools/odoonix-duplicate /usr/bin/
 COPY ./tools/odoonix-init /usr/bin/
 COPY ./tools/odoonix-load /usr/bin/
+COPY ./tools/odoonix-module /usr/bin/
 COPY ./tools/odoonix-rename /usr/bin/
 
 
@@ -192,6 +193,7 @@ RUN groupadd \
     && chmod +x /usr/bin/odoonix-duplicate \
     && chmod +x /usr/bin/odoonix-init \
     && chmod +x /usr/bin/odoonix-load \
+    && chmod +x /usr/bin/odoonix-module \
     && chmod +x /usr/bin/odoonix-rename 
 VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 

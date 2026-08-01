@@ -7,53 +7,48 @@ CONFIG_FILE="/etc/odoo/odoo.conf"
 GLOBAL_OPTIONS="--config $CONFIG_FILE"
 
 # Default values
-COMMAND="install"
-FORCE_DEMO=false
-
+DB_NAME=false
+FORCE=false
+OUTDATED=false
 
 usage() {
     cat <<EOF
 Usage:
-  $(basename "$0") [OPTIONS] DATABASE MODULE
+  $(basename "$0") [OPTIONS] COMMAND MODULE MODULE ..
 
 Options:
-  --install  
-  --uninstall
-  --upgrade
-  --force-demo
-  -h, --help              Show this help
+  --force                   Delete database if it already exists
+  --database                Odoo database name.
+  --outdated                Use with update command
+  -h, --help                Show this help
 
 Examples:
-  $(basename "$0") mydb web
+  $(basename "$0") --database mydb install web
 
   $(basename "$0") \
-      --uninstall \
-      mydb connector-shopify
+      --force \
+      --database mydb \
+      update \
+      web \
+      connector \
+      connector-shopify
 
-  $(basename "$0") \
-      --install \
-      mydb connector-shopify
-    
 EOF
 }
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --install)
-            COMMAND="install"
+        --force)
+            FORCE=true
             shift
             ;;
-        --uninstall)
-            COMMAND="uninstall"
-            shift 2
+        --outdated)
+            OUTDATED=true
+            shift
             ;;
-        --upgrade)
-            COMMAND="upgrade"
-            shift 2
-            ;;
-        --force-demo)
-            FORCE_DEMO=true
+        -d|--database)
+            DB_NAME=$2
             shift 2
             ;;
         -h|--help)
@@ -72,33 +67,42 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Expect exactly two positional arguments
-if [[ ${#POSITIONAL[@]} -ne 1 ]]; then
-    echo "Error: Database is required."
+
+
+# Expect at least one positional argument
+if [[ ${#POSITIONAL[@]} -lt 1 ]]; then
+    echo "Error: command and module name are required."
     echo
     usage
     exit 1
 fi
 
-DATABASE="${POSITIONAL[0]}"
+COMMAND="${POSITIONAL[0]}"
 MODULES=("${POSITIONAL[@]:1}")
 
+# Check database name
+if [[ -z "$COMMAND" ]]; then
+    echo "COMMAND is required."
+    usage
+    exit 1
+fi
 
 # Build command
 ARGS=(
     module
     $COMMAND
     --config "$CONFIG_FILE"
+    --database $DB_NAME
 )
 
-[[ "$COMMAND" == "install" ]] && ARGS+=( -d $DATABASE)
-[[ "$COMMAND" == "uninstall" ]] && ARGS+=( -d $DATABASE)
-[[ "$COMMAND" == "upgrade" ]] && ARGS+=( -d $DATABASE)
+[[ "$COMMAND" == "update" && "$OUTDATED" == "true" ]] && ARGS+=(--outdated)
+
+ARGS+=( ${MODULES[@]} )
 
 echo
-echo "Database    : $DATABASE"
-echo "Modules     : ${MODULES[@]}"
-echo "Command     : $COMMAND"
+echo "Database : $DB_NAME"
+echo "Command  : $COMMAND"
+echo "Modules  : ${MODULES[@]}"
 echo
 read -rp "Are you sure you want to run command this database? [y/N]: " answer
 
@@ -111,15 +115,13 @@ case "$answer" in
         exit 0
         ;;
 esac
-echo "🚀 Running command database: $DB_NAME"
+echo "🚀 Running command on database: $DB_NAME"
 
-"$CMD" "${ARGS[@]}" "${MODULES[@]}"
+"$CMD" "${ARGS[@]}"
 
 echo
-echo "✅ Module operation completed successfully."
-echo "Database    : $DATABASE"
-echo "Modules     : ${MODULES[@]}"
-echo "Command     : $COMMAND"
-
-
+echo "✅ The command completed successfully."
+echo "Database : $DB_NAME"
+echo "Command  : $COMMAND"
+echo "Modules  : ${MODULES[@]}"
 

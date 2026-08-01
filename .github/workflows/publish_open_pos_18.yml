@@ -1,4 +1,4 @@
-name: Build Open Pose Docker Image
+name: Build Open Pose Docker Image 18.0
 on: [push]
 jobs:
   build:
