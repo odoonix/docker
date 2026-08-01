@@ -145,6 +145,7 @@ RUN apt-get update \
         python3-cachetools \
         python3-cbor2 \
         python3-asn1crypto \
+        python3-jose \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/logs/* \
     && rm -fr /tmp/* 
