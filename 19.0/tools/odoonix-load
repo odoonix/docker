@@ -13,7 +13,7 @@ CMD="/var/lib/odoo/odoo-bin"
 DB_NAME="$1"
 # Path to the Odoo configuration file (change this if needed)
 CONFIG_FILE="/etc/odoo/odoo.conf"
-GLOBAL_OPTIONS="--stop-after-init --without-demo=all --no-http --http-port=8889""
+GLOBAL_OPTIONS="--stop-after-init --without-demo=all --no-http --http-port=8889"
 
 BACKUP_FILENAME="/var/lib/odoo-data/backup/${DB_NAME}"
 
@@ -26,7 +26,7 @@ $CMD db \
 
 # Check the result
 if [ $? -eq 0 ]; then
-  echo "✅ Backup completed successfully."
+  echo "✅ Backup loaded completed successfully."
 else
-  echo "❌ An error occurred during the update."
+  echo "❌ An error occurred during the backup loading process."
 fi

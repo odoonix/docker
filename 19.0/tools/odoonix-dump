@@ -80,7 +80,7 @@ ARGS=(
     --config "$CONFIG_FILE"
     dump
     "$DB_NAME"
-    "BACKUP_FILENAME"
+    "$BACKUP_FILENAME"
 )
 
 [[ "$NO_FILESTORE" == true ]] && ARGS+=(--no-filestore)
