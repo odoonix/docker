@@ -12,6 +12,7 @@ ARG TARGETARCH
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive \
+    apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
         dirmngr \
@@ -52,6 +53,7 @@ RUN apt-get update && \
     esac \
     && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.jammy_${WKHTMLTOPDF_ARCH}.deb \
     && echo ${WKHTMLTOPDF_SHA} wkhtmltox.deb | sha1sum -c - \
+    && apt-get install -y --no-install-recommends ./wkhtmltox.deb \
     && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
 
 # install latest postgresql-client
@@ -64,6 +66,7 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ noble-pgdg main' > /etc/a
     && gpgconf --kill all \
     && rm -rf "$GNUPGHOME" \
     && apt-get update  \
+    && apt-get install --no-install-recommends -y postgresql-client \
     && rm -f /etc/apt/sources.list.d/pgdg.list \
     && rm -rf /var/lib/apt/lists/*
 
@@ -81,10 +84,12 @@ ENV ODOO_VERSION 19.0
 # RUN curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
 #     && echo "${ODOO_SHA} odoo.deb" | sha1sum -c - \
 #     && apt-get update \
+#     && apt-get -y install --no-install-recommends ./odoo.deb \
 #     && rm -rf /var/lib/apt/lists/* odoo.deb
 
 # Install Odoo tools
 RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
         adduser \
         fonts-dejavu-core \
         fonts-freefont-ttf \
