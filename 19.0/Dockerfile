@@ -150,6 +150,7 @@ RUN apt-get update \
         python3-pandas \
         python3-cerberus \
         python3-httplib2 \
+        python3-openpyxl \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/logs/* \
     && rm -fr /tmp/* 
