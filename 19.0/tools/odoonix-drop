@@ -4,7 +4,7 @@ set -e
 
 CMD="/var/lib/odoo/odoo-bin"
 CONFIG_FILE="/etc/odoo/odoo.conf"
-GLOBAL_OPTIONS="--config $CONFIG_FILE"
+GLOBAL_OPTIONS="--config $CONFIG_FILE  --log-level=debug"
 
 # Default values
 FORCE=false
