@@ -151,6 +151,9 @@ RUN apt-get update \
         python3-cerberus \
         python3-httplib2 \
         python3-openpyxl \
+        python3-packaging \
+        python3-defusedxml \
+        python3-authlib \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/logs/* \
     && rm -fr /tmp/* 

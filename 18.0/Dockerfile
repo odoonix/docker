@@ -134,6 +134,9 @@ RUN pip install \
         python3-validators \
         python3-cachetools \
         python3-jose \
+        python3-packaging \
+        python3-defusedxml \
+        python3-authlib \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/logs/* \
     && rm -fr /tmp/* 
