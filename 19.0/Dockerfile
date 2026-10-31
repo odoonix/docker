@@ -213,5 +213,4 @@ RUN pip install \
     --break-system-packages \
     openupgradelib \
     jdatetime \
-    persiantools \
-    clicksend-client
+    persiantools
