@@ -211,7 +211,7 @@ CMD ["odoo"]
 ############################################################################
 RUN pip install \
     --break-system-packages \
-    git+https://github.com/OCA/openupgradelib.git@master#egg=openupgradelib \
+    openupgradelib \
     jdatetime \
     persiantools \
     clicksend-client
